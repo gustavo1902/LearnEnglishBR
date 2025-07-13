@@ -1,7 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Header = () => {
+  const { userInfo, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const logoutHandler = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <header style={headerStyle}>
       <div style={logoStyle}>
@@ -9,8 +18,21 @@ const Header = () => {
       </div>
       <nav>
         <ul style={ulStyle}>
-          <li style={liStyle}><Link to="/login" style={linkStyle}>Login</Link></li>
-          <li style={liStyle}><Link to="/register" style={linkStyle}>Registrar</Link></li>
+          {userInfo ? (
+            <>
+              <li style={liStyle}>
+                <span style={{ color: '#fff', marginRight: '10px' }}>Olá, {userInfo.name}!</span>
+              </li>
+              <li style={liStyle}>
+                <button onClick={logoutHandler} style={buttonLinkStyle}>Sair</button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li style={liStyle}><Link to="/login" style={linkStyle}>Login</Link></li>
+              <li style={liStyle}><Link to="/register" style={linkStyle}>Registrar</Link></li>
+            </>
+          )}
         </ul>
       </nav>
     </header>
@@ -51,7 +73,18 @@ const linkStyle = {
   transition: 'background-color 0.3s ease'
 };
 
-linkStyle[':hover'] = {
+const buttonLinkStyle = {
+  background: 'none',
+  border: 'none',
+  color: '#fff',
+  cursor: 'pointer',
+  fontSize: '1rem',
+  padding: '0.5rem 1rem',
+  borderRadius: '5px',
+  transition: 'background-color 0.3s ease'
+};
+
+buttonLinkStyle[':hover'] = {
     backgroundColor: '#555'
 };
 

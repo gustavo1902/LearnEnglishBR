@@ -1,38 +1,34 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const { login, userInfo } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (userInfo) {
+      navigate('/');
+    }
+  }, [userInfo, navigate]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/login`,
-        { email, password },
-        config
-      );
-      setMessage('Login bem-sucedido!');
-      console.log(data); // O token virá aqui
-      localStorage.setItem('userInfo', JSON.stringify(data)); // Armazena info do usuário (incluindo token)
-      // Você pode querer redirecionar o usuário para o dashboard
-    } catch (error) {
-      setMessage(error.response.data.message || 'Erro no login.');
-      console.error(error);
+      await login(email, password);
+      navigate('/');
+    } catch (err) {
+      setError(err);
     }
   };
 
   return (
     <div className="auth-container">
       <h2>Login</h2>
-      {message && <p className="message">{message}</p>}
+      {error && <p className="message error">{error}</p>}
       <form onSubmit={submitHandler}>
         <div className="form-group">
           <label htmlFor="email">Email:</label>

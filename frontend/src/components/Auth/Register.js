@@ -1,38 +1,35 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useAuth } from '../../context/AuthContext'; 
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const { register, userInfo } = useAuth();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (userInfo) {
+      navigate('/');
+    }
+  }, [userInfo, navigate]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/register`,
-        { name, email, password },
-        config
-      );
-      setMessage('Registro bem-sucedido! Por favor, faça login.');
-      console.log(data); // O token virá aqui
-      // Você pode querer redirecionar o usuário ou limpar o formulário
-    } catch (error) {
-      setMessage(error.response.data.message || 'Erro no registro.');
-      console.error(error);
+      await register(name, email, password);
+      navigate('/');
+    } catch (err) {
+      setError(err);
     }
   };
 
   return (
     <div className="auth-container">
       <h2>Registrar</h2>
-      {message && <p className="message">{message}</p>}
+      {error && <p className="message error">{error}</p>}
       <form onSubmit={submitHandler}>
         <div className="form-group">
           <label htmlFor="name">Nome:</label>
