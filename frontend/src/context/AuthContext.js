@@ -36,23 +36,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Função de registro
   const register = async (name, email, password) => {
-    try {
-      const config = {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-      const { data } = await axios.post(
-        `${process.env.REACT_APP_API_URL}/auth/register`,
-        { name, email, password },
-        config
-      );
-      setUserInfo(data); 
-      return data;
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    const { data } = await axios.post(
+      `${process.env.REACT_APP_API_URL}/auth/register`,
+      { name, email, password },
+      config
+    );
+    setUserInfo(data); 
+    return data;
     } catch (error) {
-      throw error.response.data.message || 'Erro no registro.';
+    const message =
+      error.response?.data?.message || error.message || 'Erro no registro.';
+    throw new Error(message); 
     }
   };
 
