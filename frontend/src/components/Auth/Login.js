@@ -21,7 +21,7 @@ const Login = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err);
+      setError(err.message || String(err));
     }
   };
 

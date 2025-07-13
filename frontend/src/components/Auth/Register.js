@@ -22,7 +22,7 @@ const Register = () => {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
-      setError(err);
+      setError(err.message || String(err)); 
     }
   };
 
