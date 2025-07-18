@@ -4,7 +4,8 @@ const ReadingMaterials = () => {
   return (
     <div>
       <h3>Materiais de Leitura</h3>
-      <p>Conteúdo de leitura por nível (iniciante, intermediário, avançado) virá aqui.</p>
+      <p>Esta seção será implementada em uma versão futura.</p>
+      <p>Fique ligado para textos, vocabulário destacado e explicações em português!</p>
     </div>
   );
 };
