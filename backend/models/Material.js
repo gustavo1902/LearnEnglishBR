@@ -1,3 +1,4 @@
+// backend/models/Material.js
 const mongoose = require('mongoose');
 
 const MaterialSchema = new mongoose.Schema({
@@ -6,11 +7,12 @@ const MaterialSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  content: { 
+  
+  content: {
     type: String,
-    required: true,
+    required: function() { return this.type === 'leitura'; },
   },
-  level: { 
+  level: {
     type: String,
     enum: ['iniciante', 'intermediario', 'avancado'],
     required: true,
@@ -20,21 +22,31 @@ const MaterialSchema = new mongoose.Schema({
     enum: ['leitura', 'exercicio', 'video', 'podcast', 'site'],
     required: true,
   },
-  vocabulary: [ // Array de objetos para vocabulário destacado
+  vocabulary: [
     {
       word: { type: String, required: true },
-      explanation: { type: String, required: true }, // Explicação 
+      explanation: { type: String, required: true },
     },
   ],
-  externalLink: { // Para recursos externos
+  externalLink: {
     type: String,
-    required: function() { return this.type !== 'leitura' && this.type !== 'exercicio'; } 
+    required: function() { return this.type !== 'leitura' && this.type !== 'exercicio'; }
   },
+  questions: [
+    {
+      questionText: { type: String, required: true },
+      options: [
+        {
+          optionText: { type: String, required: true },
+          isCorrect: { type: Boolean, required: true, default: false },
+        },
+      ],
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  
 });
 
 module.exports = mongoose.model('Material', MaterialSchema);
