@@ -133,6 +133,17 @@
     }
 }
 
+.homepage-button.homepage-button-dashboard {
+    background-color: #17a2b8;
+    color: white;
+    margin-top: 15px;
+    padding: 10px 10px;
+    font-size: 1em;
+}
+.homepage-button.homepage-button-dashboard:hover {
+    background-color: #138496;
+}
+
 .homepage-image-section {
   flex: 1;
   /* O gradiente agora será animado */
