@@ -26,7 +26,6 @@ const Exercises = () => {
         );
         setExercises(data);
       } catch (err) {
-        console.error('Erro ao buscar exercícios:', err);
         setError(err.response?.data?.message || 'Erro ao carregar exercícios.');
       } finally {
         setLoading(false);
@@ -51,11 +50,37 @@ const Exercises = () => {
     }));
   };
 
-  const checkAnswers = (exerciseId) => {
+  const checkAnswers = async (exerciseId) => {
     setAnswersChecked(prevChecked => ({
       ...prevChecked,
       [exerciseId]: true,
     }));
+
+    const exercise = exercises.find(ex => ex._id === exerciseId);
+    if (exercise) {
+      const score = calculateScore(exercise);
+      const totalQuestions = exercise.questions.length;
+
+      try {
+        const config = {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${userInfo.token}`,
+          },
+        };
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/progress`,
+          {
+            materialId: exerciseId,
+            score,
+            totalQuestions,
+          },
+          config
+        );
+      } catch (err) {
+        // erro ao salvar progresso
+      }
+    }
   };
 
   const resetExercise = (exerciseId) => {
@@ -130,7 +155,7 @@ const Exercises = () => {
                             style={
                               isChecked
                                 ? (option.isCorrect ? correctOptionStyle :
-                                   (userAnswers[exercise._id]?.[q._id] === optIndex ? wrongOptionStyle : {}))
+                                  (userAnswers[exercise._id]?.[q._id] === optIndex ? wrongOptionStyle : {}))
                                 : {}
                             }
                           >
@@ -139,36 +164,36 @@ const Exercises = () => {
                         </li>
                       ))}
                     </ul>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Nenhuma questão disponível para este exercício.</p>
-          )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>Nenhuma questão disponível para este exercício.</p>
+            )}
 
-          {isChecked && (
-            <div style={resultStyle}>
-              <p>Você acertou: {score} de {totalQuestions} perguntas.</p>
-            </div>
-          )}
+            {isChecked && (
+              <div style={resultStyle}>
+                <p>Você acertou: {score} de {totalQuestions} perguntas.</p>
+              </div>
+            )}
 
-          {!isChecked ? (
-            <button
-              onClick={() => checkAnswers(exercise._id)}
-              style={buttonStyle}
-              disabled={!userAnswers[exercise._id] || Object.keys(userAnswers[exercise._id]).length !== totalQuestions}
-            >
-              Verificar Respostas
-            </button>
-          ) : (
-            <button
-              onClick={() => resetExercise(exercise._id)}
-              style={buttonStyle}
-            >
-              Reiniciar Quiz
-            </button>
-          )}
-        </div>
+            {!isChecked ? (
+              <button
+                onClick={() => checkAnswers(exercise._id)}
+                style={buttonStyle}
+                disabled={!userAnswers[exercise._id] || Object.keys(userAnswers[exercise._id]).length !== totalQuestions}
+              >
+                Verificar Respostas
+              </button>
+            ) : (
+              <button
+                onClick={() => resetExercise(exercise._id)}
+                style={buttonStyle}
+              >
+                Reiniciar Quiz
+              </button>
+            )}
+          </div>
         );
       })}
     </div>
