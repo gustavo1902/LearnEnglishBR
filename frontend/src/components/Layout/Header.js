@@ -20,16 +20,14 @@ const Header = () => {
         <ul style={ulStyle}>
           {userInfo ? (
             <>
-              <li style={liStyle}>
-                <span style={loggedInUserStyle}>Olá, {userInfo.name}!</span>
-              </li>
-              <li style={liStyle}>
+              <li style={loggedInUserContainerStyle}>
+                <span style={loggedInUserTextStyle}>Olá, {userInfo.name}!</span>
                 <button onClick={logoutHandler} style={buttonLinkStyle}>Sair</button>
               </li>
             </>
           ) : (
             <>
-              
+            
             </>
           )}
         </ul>
@@ -61,7 +59,8 @@ const ulStyle = {
   listStyle: 'none',
   display: 'flex',
   margin: 0,
-  padding: 0
+  padding: 0,
+  alignItems: 'center',
 };
 
 const liStyle = {
@@ -87,11 +86,20 @@ const buttonLinkStyle = {
   borderRadius: '5px',
   transition: 'all 0.3s ease',
   fontWeight: '500',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 
-const loggedInUserStyle = {
+const loggedInUserContainerStyle = {
+  display: 'flex',
+  alignItems: 'center',
+  marginLeft: '25px',
+  gap: '10px',
+};
+
+const loggedInUserTextStyle = {
   color: '#bbdefb',
-  marginRight: '15px',
   fontSize: '1.1em',
 };
 
