@@ -1,0 +1,139 @@
+.homepage-container {
+    display: flex;
+    min-height: calc(100vh - 80px);
+    background-color: var(--color-background-light);
+    margin-top: 0;
+    padding: 0;
+}
+
+.homepage-form-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.homepage-image-section {
+    flex: 1;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.homepage-hero-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.homepage-welcome-title {
+    font-size: 3em;
+    color: var(--color-text-dark);
+    margin-bottom: 15px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.homepage-subtitle {
+    font-size: 1.5em;
+    color: var(--color-text-medium);
+    margin-bottom: 40px;
+    text-align: center;
+    max-width: 80%;
+}
+
+.homepage-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.homepage-button {
+    padding: 15px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+
+.homepage-button-login {
+    background-color: var(--color-primary);
+    color: white;
+}
+.homepage-button-login:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.homepage-button-register {
+    background-color: var(--color-secondary);
+    color: white;
+}
+.homepage-button-register:hover {
+    background-color: #218838;
+}
+
+.homepage-button-continue {
+    background-color: var(--color-text-medium);
+    color: white;
+}
+.homepage-button-continue:hover {
+    background-color: #5a6268;
+}
+
+.homepage-logged-in-message {
+    margin-top: 30px;
+    font-size: 1.3em;
+    color: var(--color-text-dark);
+    text-align: center;
+}
+
+.homepage-button-dashboard {
+    background-color: #17a2b8;
+    color: white;
+    margin-top: 20px;
+}
+.homepage-button-dashboard:hover {
+    background-color: #138496;
+}
+
+@media (max-width: 768px) {
+    .homepage-container {
+        flex-direction: column;
+    }
+
+    .homepage-form-section,
+    .homepage-image-section {
+        flex: none;
+        width: 100%;
+        padding: 30px 20px;
+    }
+
+    .homepage-image-section {
+        min-height: 250px;
+    }
+
+    .homepage-welcome-title {
+        font-size: 2.2em;
+    }
+
+    .homepage-subtitle {
+        font-size: 1.2em;
+    }
+
+    .homepage-button {
+        width: 90%;
+    }
+}

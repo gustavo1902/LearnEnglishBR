@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext'; 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import './AuthStyles.css';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -16,22 +17,23 @@ const Register = () => {
     }
   }, [userInfo, navigate]);
 
-  const submitHandler = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
     try {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
-      setError(err.message || String(err)); 
+      setError(err.message || 'Erro no registro.');
     }
   };
 
   return (
-    <div className="auth-container">
-      <h2>Registrar</h2>
-      {error && <p className="message error">{error}</p>}
-      <form onSubmit={submitHandler}>
-        <div className="form-group">
+    <div className="auth-simple-container">
+      <h2 className="auth-title">Crie Sua Conta</h2>
+      {error && <p className="auth-error-message">{error}</p>}
+      <form onSubmit={handleSubmit} className="auth-form-simple">
+        <div className="auth-form-group">
           <label htmlFor="name">Nome:</label>
           <input
             type="text"
@@ -41,7 +43,7 @@ const Register = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="auth-form-group">
           <label htmlFor="email">Email:</label>
           <input
             type="email"
@@ -51,7 +53,7 @@ const Register = () => {
             required
           />
         </div>
-        <div className="form-group">
+        <div className="auth-form-group">
           <label htmlFor="password">Senha:</label>
           <input
             type="password"
@@ -61,8 +63,15 @@ const Register = () => {
             required
           />
         </div>
-        <button type="submit">Registrar</button>
+        <div className="auth-form-actions-simple">
+          <button type="submit" className="auth-button primary">
+            Registrar
+          </button>
+        </div>
       </form>
+      <div className="auth-alternative">
+        Já tem uma conta? <Link to="/login">Entrar</Link>
+      </div>
     </div>
   );
 };

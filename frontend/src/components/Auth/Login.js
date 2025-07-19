@@ -7,8 +7,14 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { login, userInfo } = useAuth(); 
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (userInfo) {
+      navigate('/');
+    }
+  }, [userInfo, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,50 +27,40 @@ const Login = () => {
     }
   };
 
-  const handleContinueWithoutLogin = () => {
-    navigate('/dashboard');
-  };
-
   return (
-    <div className="auth-container">
-      <div className="auth-form-wrapper">
-        <h2 className="auth-title">Entrar</h2>
-        {error && <p className="auth-error-message">{error}</p>}
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="auth-form-group">
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="auth-form-group">
-            <label htmlFor="password">Senha:</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="auth-form-actions">
-            <button type="submit" className="auth-button primary">
-              Entrar
-            </button>
-            <button type="button" onClick={handleContinueWithoutLogin} className="auth-button secondary">
-              Continuar sem Login
-            </button>
-          </div>
-        </form>
-        <div className="auth-alternative">
-          Novo por aqui? <Link to="/register">Registre-se</Link>
+    <div className="auth-simple-container">
+      <h2 className="auth-title">Entrar na Sua Conta</h2>
+      {error && <p className="auth-error-message">{error}</p>}
+      <form onSubmit={handleSubmit} className="auth-form-simple">
+        <div className="auth-form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
+        <div className="auth-form-group">
+          <label htmlFor="password">Senha:</label>
+          <input
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+        <div className="auth-form-actions-simple">
+          <button type="submit" className="auth-button primary">
+            Entrar
+          </button>
+        </div>
+      </form>
+      <div className="auth-alternative">
+        Não tem uma conta? <Link to="/register">Crie uma aqui</Link>
       </div>
-      <div className="auth-background"></div>
     </div>
   );
 };

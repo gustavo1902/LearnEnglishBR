@@ -6,6 +6,8 @@ import HomePage from './components/HomePage/HomePage';
 import Dashboard from './components/Dashboard/Dashboard';
 import Header from './components/Layout/Header';
 import './index.css';
+import './components/Auth/AuthStyles.css';
+import './components/HomePage/HomePage.css';
 
 function App() {
   return (
