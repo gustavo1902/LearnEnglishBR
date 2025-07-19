@@ -1,4 +1,4 @@
-# Plataforma de Aprendizado de Inglês para Estudantes Brasileiros
+# Plataforma de Aprendizado de Inglês para Estudantes
 
 ## Funcionalidades Principais
 
@@ -67,7 +67,7 @@ Para configurar e rodar o projeto em sua máquina local, siga os passos abaixo:
     PORT=5000
     ```
     * Substitua `<seu_usuario>`, `<sua_senha>` e `<seu_cluster>` pelas suas credenciais do MongoDB Atlas.
-    
+
 4.  **Inicie o servidor backend:**
     ```bash
     npm run dev
