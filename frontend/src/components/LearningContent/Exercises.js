@@ -1,65 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
 const Exercises = () => {
-  const [exercises, setExercises] = useState([]);
+  const [allExercises, setAllExercises] = useState([]);
+  const [userProgress, setUserProgress] = useState([]);
+  const [selectedQuizId, setSelectedQuizId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { userInfo } = useAuth();
+
+  const API_URL = process.env.REACT_APP_API_URL;
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      if (!userInfo || !userInfo.token) {
+        setError('Você precisa estar logado para ver os exercícios.');
+        setLoading(false);
+        return;
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+        },
+      };
+
+      const { data: exercisesData } = await axios.get(`${API_URL}/materials?type=exercicio`, config);
+      setAllExercises(exercisesData);
+
+      const { data: progressData } = await axios.get(`${API_URL}/progress`, config);
+      setUserProgress(progressData);
+
+    } catch (err) {
+      console.error('Erro ao buscar dados:', err);
+      setError(err.response?.data?.message || 'Erro ao carregar exercícios ou progresso.');
+    } finally {
+      setLoading(false);
+    }
+  }, [userInfo, API_URL]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
   const [userAnswers, setUserAnswers] = useState({});
   const [answersChecked, setAnswersChecked] = useState({});
 
-  useEffect(() => {
-    const fetchExercises = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        };
-        const { data } = await axios.get(
-          `${process.env.REACT_APP_API_URL}/materials?type=exercicio`,
-          config
-        );
-        setExercises(data);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Erro ao carregar exercícios.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userInfo && userInfo.token) {
-      fetchExercises();
-    } else {
-      setError('Você precisa estar logado para ver os exercícios.');
-      setLoading(false);
-    }
-  }, [userInfo]);
-
-  const handleOptionChange = (exerciseId, questionId, optionIndex) => {
+  const handleOptionChange = (questionId, optionIndex) => {
     setUserAnswers(prevAnswers => ({
       ...prevAnswers,
-      [exerciseId]: {
-        ...prevAnswers[exerciseId],
-        [questionId]: optionIndex,
-      },
+      [questionId]: optionIndex,
     }));
   };
 
-  const checkAnswers = async (exerciseId) => {
+  const checkAnswers = async (quizId) => {
     setAnswersChecked(prevChecked => ({
       ...prevChecked,
-      [exerciseId]: true,
+      [quizId]: true,
     }));
 
-    const exercise = exercises.find(ex => ex._id === exerciseId);
-    if (exercise) {
-      const score = calculateScore(exercise);
-      const totalQuestions = exercise.questions.length;
+    const currentQuiz = allExercises.find(ex => ex._id === quizId);
+    if (currentQuiz) {
+      const score = calculateScore(currentQuiz);
+      const totalQuestions = currentQuiz.questions.length;
 
       try {
         const config = {
@@ -69,37 +75,35 @@ const Exercises = () => {
           },
         };
         await axios.post(
-          `${process.env.REACT_APP_API_URL}/progress`,
+          `${API_URL}/progress`,
           {
-            materialId: exerciseId,
+            materialId: quizId,
             score,
             totalQuestions,
           },
           config
         );
+        fetchData();
       } catch (err) {
-        // erro ao salvar progresso
+        console.error('Erro ao salvar progresso:', err.response?.data?.message || err.message);
       }
     }
   };
 
-  const resetExercise = (exerciseId) => {
-    setUserAnswers(prevAnswers => {
-      const newAnswers = { ...prevAnswers };
-      delete newAnswers[exerciseId];
-      return newAnswers;
-    });
+  const resetExercise = (quizId) => {
+    setUserAnswers({});
     setAnswersChecked(prevChecked => {
       const newChecked = { ...prevChecked };
-      delete newChecked[exerciseId];
+      delete newChecked[quizId];
       return newChecked;
     });
+    setSelectedQuizId(null);
   };
 
-  const calculateScore = (exercise) => {
+  const calculateScore = (quiz) => {
     let correctCount = 0;
-    exercise.questions.forEach(q => {
-      const selectedOptionIndex = userAnswers[exercise._id]?.[q._id];
+    quiz.questions.forEach(q => {
+      const selectedOptionIndex = userAnswers[q._id];
       const correctOption = q.options.find(opt => opt.isCorrect);
 
       if (selectedOptionIndex !== undefined && correctOption) {
@@ -112,90 +116,119 @@ const Exercises = () => {
   };
 
   if (loading) {
-    return <p>Carregando exercícios...</p>;
+    return <p>Carregando exercícios e progresso...</p>;
   }
 
   if (error) {
     return <p className="message error">{error}</p>;
   }
 
-  if (exercises.length === 0) {
-    return <p>Nenhum exercício encontrado. Tente adicionar alguns no backend.</p>;
+  const currentQuiz = allExercises.find(ex => ex._id === selectedQuizId);
+
+  if (selectedQuizId && currentQuiz) {
+    const isChecked = answersChecked[currentQuiz._id];
+    const score = isChecked ? calculateScore(currentQuiz) : 0;
+    const totalQuestions = currentQuiz.questions.length;
+
+    return (
+      <div>
+        <h3>{currentQuiz.title} ({currentQuiz.level})</h3>
+        <button onClick={() => resetExercise(currentQuiz._id)} style={backButtonStyle}>
+          ← Voltar para a lista de Quizzes
+        </button>
+        {currentQuiz.questions && currentQuiz.questions.length > 0 ? (
+          <div>
+            {currentQuiz.questions.map((q, qIndex) => (
+              <div key={q._id || qIndex} style={questionStyle}>
+                <p><strong>{qIndex + 1}. {q.questionText}</strong></p>
+                <ul style={optionsListWithRadioStyle}>
+                  {q.options.map((option, optIndex) => (
+                    <li key={optIndex} style={optionItemStyle}>
+                      <input
+                        type="radio"
+                        name={`question-${q._id}`}
+                        id={`q${q._id}-opt${optIndex}`}
+                        checked={userAnswers[q._id] === optIndex}
+                        onChange={() => handleOptionChange(q._id, optIndex)}
+                        disabled={isChecked}
+                      />
+                      <label
+                        htmlFor={`q${q._id}-opt${optIndex}`}
+                        style={
+                          isChecked
+                            ? (option.isCorrect ? correctOptionStyle :
+                               (userAnswers[q._id] === optIndex ? wrongOptionStyle : {}))
+                            : {}
+                        }
+                      >
+                        {option.optionText}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>Nenhuma questão disponível para este exercício.</p>
+        )}
+
+        {isChecked && (
+          <div style={resultStyle}>
+            <p>Você acertou: {score} de {totalQuestions} perguntas.</p>
+          </div>
+        )}
+
+        {!isChecked ? (
+          <button
+            onClick={() => checkAnswers(currentQuiz._id)}
+            style={buttonStyle}
+            disabled={Object.keys(userAnswers).length !== totalQuestions}
+          >
+            Verificar Respostas
+          </button>
+        ) : (
+          <button
+            onClick={() => resetExercise(currentQuiz._id)}
+            style={buttonStyle}
+          >
+            Reiniciar Quiz
+          </button>
+        )}
+      </div>
+    );
   }
 
   return (
     <div>
-      <h3>Exercícios de Inglês</h3>
-      {exercises.map((exercise) => {
-        const isChecked = answersChecked[exercise._id];
-        const score = isChecked ? calculateScore(exercise) : 0;
-        const totalQuestions = exercise.questions.length;
-
-        return (
-          <div key={exercise._id} style={exerciseCardStyle}>
-            <h4>{exercise.title} ({exercise.level})</h4>
-            {exercise.questions && exercise.questions.length > 0 ? (
-              <div>
-                {exercise.questions.map((q, qIndex) => (
-                  <div key={q._id || qIndex} style={questionStyle}>
-                    <p><strong>{qIndex + 1}. {q.questionText}</strong></p>
-                    <ul style={optionsListStyle}>
-                      {q.options.map((option, optIndex) => (
-                        <li key={optIndex} style={optionItemStyle}>
-                          <input
-                            type="radio"
-                            name={`question-${exercise._id}-${q._id}`}
-                            id={`q${q._id}-opt${optIndex}`}
-                            checked={userAnswers[exercise._id]?.[q._id] === optIndex}
-                            onChange={() => handleOptionChange(exercise._id, q._id, optIndex)}
-                            disabled={isChecked}
-                          />
-                          <label
-                            htmlFor={`q${q._id}-opt${optIndex}`}
-                            style={
-                              isChecked
-                                ? (option.isCorrect ? correctOptionStyle :
-                                  (userAnswers[exercise._id]?.[q._id] === optIndex ? wrongOptionStyle : {}))
-                                : {}
-                            }
-                          >
-                            {option.optionText}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+      <h3>Escolha um Exercício</h3>
+      {allExercises.length === 0 ? (
+        <p>Nenhum exercício encontrado. Adicione alguns quizzes no backend.</p>
+      ) : (
+        <div style={quizGridStyle}>
+          {allExercises.map((quiz) => {
+            const isCompleted = userProgress.some(
+              (p) => p.material && p.material._id === quiz._id
+            );
+            return (
+              <div key={quiz._id} style={quizCardStyle}>
+                <h4>{quiz.title}</h4>
+                <p>Nível: {quiz.level}</p>
+                <p>Perguntas: {quiz.questions ? quiz.questions.length : 0}</p>
+                {isCompleted && (
+                  <span style={completedBadgeStyle}>Feito!</span>
+                )}
+                <button
+                  onClick={() => setSelectedQuizId(quiz._id)}
+                  style={selectQuizButtonStyle}
+                >
+                  {isCompleted ? 'Revisar / Refazer' : 'Iniciar Quiz'}
+                </button>
               </div>
-            ) : (
-              <p>Nenhuma questão disponível para este exercício.</p>
-            )}
-
-            {isChecked && (
-              <div style={resultStyle}>
-                <p>Você acertou: {score} de {totalQuestions} perguntas.</p>
-              </div>
-            )}
-
-            {!isChecked ? (
-              <button
-                onClick={() => checkAnswers(exercise._id)}
-                style={buttonStyle}
-                disabled={!userAnswers[exercise._id] || Object.keys(userAnswers[exercise._id]).length !== totalQuestions}
-              >
-                Verificar Respostas
-              </button>
-            ) : (
-              <button
-                onClick={() => resetExercise(exercise._id)}
-                style={buttonStyle}
-              >
-                Reiniciar Quiz
-              </button>
-            )}
-          </div>
-        );
-      })}
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };
@@ -213,7 +246,7 @@ const questionStyle = {
   marginBottom: '15px'
 };
 
-const optionsListStyle = {
+const optionsListWithRadioStyle = {
   listStyle: 'none',
   padding: 0
 };
@@ -253,6 +286,62 @@ const resultStyle = {
   borderRadius: '5px',
   fontWeight: 'bold',
   textAlign: 'center'
+};
+
+const quizGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+  gap: '20px',
+  marginTop: '20px',
+};
+
+const quizCardStyle = {
+  border: '1px solid #e0e0e0',
+  borderRadius: '8px',
+  padding: '15px',
+  backgroundColor: '#fefefe',
+  boxShadow: '0 2px 5px rgba(0,0,0,0.08)',
+  position: 'relative',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+};
+
+const selectQuizButtonStyle = {
+  padding: '8px 15px',
+  backgroundColor: '#28a745',
+  color: 'white',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  marginTop: '10px',
+  alignSelf: 'flex-start',
+  transition: 'background-color 0.3s ease',
+};
+
+const completedBadgeStyle = {
+  position: 'absolute',
+  top: '10px',
+  right: '10px',
+  backgroundColor: '#007bff',
+  color: 'white',
+  padding: '5px 10px',
+  borderRadius: '15px',
+  fontSize: '0.8em',
+  fontWeight: 'bold',
+};
+
+const backButtonStyle = {
+  padding: '8px 15px',
+  backgroundColor: '#6c757d',
+  color: 'white',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontSize: '14px',
+  marginBottom: '20px',
+  transition: 'background-color 0.3s ease',
 };
 
 export default Exercises;
