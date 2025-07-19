@@ -33,7 +33,7 @@ const HomePage = () => {
         )}
       </div>
       <div className="homepage-image-section">
-        <img src="/images/img.png" alt="Estudante de inglês" className="homepage-hero-image" />
+        
       </div>
     </div>
   );
