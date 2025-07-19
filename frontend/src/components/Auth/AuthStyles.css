@@ -1,0 +1,107 @@
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-background-light);
+}
+
+.auth-background {
+    flex: 1;
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.auth-title {
+    font-size: 2.5rem;
+    color: var(--color-text-dark);
+    margin-bottom: 1.5rem;
+}
+
+.auth-form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 400px;
+}
+
+.auth-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-medium);
+    font-weight: bold;
+}
+
+.auth-form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.auth-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.auth-button {
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    text-decoration: none;
+}
+
+.auth-button.primary {
+    background-color: var(--color-primary);
+}
+
+.auth-button.primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.auth-button.secondary {
+    background-color: var(--color-text-medium);
+}
+
+.auth-button.secondary:hover {
+    background-color: var(--color-text-dark);
+}
+
+.auth-alternative {
+    margin-top: 2rem;
+    color: var(--color-text-medium);
+    text-align: center;
+}
+
+.auth-alternative a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-alternative a:hover {
+    text-decoration: underline;
+}
