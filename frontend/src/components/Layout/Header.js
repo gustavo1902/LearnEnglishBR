@@ -8,7 +8,7 @@ const Header = () => {
 
   const logoutHandler = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
@@ -24,7 +24,7 @@ const Header = () => {
                 <Link to="/dashboard" style={linkStyle}>Dashboard</Link>
               </li>
               <li style={liStyle}>
-                <span style={{ color: '#fff', marginRight: '10px' }}>Olá, {userInfo.name}!</span>
+                <span style={loggedInUserStyle}>Olá, {userInfo.name}!</span>
               </li>
               <li style={liStyle}>
                 <button onClick={logoutHandler} style={buttonLinkStyle}>Sair</button>
@@ -32,8 +32,9 @@ const Header = () => {
             </>
           ) : (
             <>
-              <li style={liStyle}><Link to="/login" style={linkStyle}>Login</Link></li>
-              <li style={liStyle}><Link to="/register" style={linkStyle}>Registrar</Link></li>
+              <li style={liStyle}>
+                <Link to="/dashboard" style={linkStyle}>Conteúdo</Link>
+              </li>
             </>
           )}
         </ul>
@@ -43,18 +44,22 @@ const Header = () => {
 };
 
 const headerStyle = {
-  background: '#333',
-  color: '#fff',
-  padding: '1rem',
+  background: '#2c3e50',
+  color: '#ecf0f1',
+  padding: '1rem 2rem',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+  boxShadow: '0 3px 8px rgba(0,0,0,0.15)',
+  position: 'sticky',
+  top: 0,
+  zIndex: 1000,
 };
 
 const logoStyle = {
-  fontSize: '1.5rem',
+  fontSize: '1.8rem',
   fontWeight: 'bold',
+  letterSpacing: '1px',
 };
 
 const ulStyle = {
@@ -65,30 +70,34 @@ const ulStyle = {
 };
 
 const liStyle = {
-  marginLeft: '20px'
+  marginLeft: '25px',
 };
 
 const linkStyle = {
-  color: '#fff',
+  color: '#ecf0f1',
   textDecoration: 'none',
-  padding: '0.5rem 1rem',
+  padding: '0.8rem 1.2rem',
   borderRadius: '5px',
-  transition: 'background-color 0.3s ease'
+  transition: 'background-color 0.3s ease, color 0.3s ease',
+  fontWeight: '500',
 };
 
 const buttonLinkStyle = {
   background: 'none',
-  border: 'none',
-  color: '#fff',
+  border: '1px solid #e74c3c',
+  color: '#e74c3c',
   cursor: 'pointer',
   fontSize: '1rem',
-  padding: '0.5rem 1rem',
+  padding: '0.8rem 1.2rem',
   borderRadius: '5px',
-  transition: 'background-color 0.3s ease'
+  transition: 'all 0.3s ease',
+  fontWeight: '500',
 };
 
-buttonLinkStyle[':hover'] = {
-    backgroundColor: '#555'
+const loggedInUserStyle = {
+  color: '#bbdefb',
+  marginRight: '15px',
+  fontSize: '1.1em',
 };
 
 export default Header;
