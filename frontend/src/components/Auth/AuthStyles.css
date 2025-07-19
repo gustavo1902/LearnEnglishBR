@@ -84,6 +84,7 @@
 
 .auth-button.primary:hover {
     background-color: var(--color-primary-dark);
+    background-color: #138496;
 }
 
 .auth-button.secondary {

@@ -21,9 +21,6 @@ const Header = () => {
           {userInfo ? (
             <>
               <li style={liStyle}>
-                <Link to="/dashboard" style={linkStyle}>Dashboard</Link>
-              </li>
-              <li style={liStyle}>
                 <span style={loggedInUserStyle}>Olá, {userInfo.name}!</span>
               </li>
               <li style={liStyle}>
@@ -32,9 +29,7 @@ const Header = () => {
             </>
           ) : (
             <>
-              <li style={liStyle}>
-                <Link to="/dashboard" style={linkStyle}>Conteúdo</Link>
-              </li>
+              
             </>
           )}
         </ul>
