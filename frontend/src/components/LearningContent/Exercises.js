@@ -16,24 +16,21 @@ const Exercises = () => {
     setLoading(true);
     setError('');
     try {
-      if (!userInfo || !userInfo.token) {
-        setError('Você precisa estar logado para ver os exercícios.');
-        setLoading(false);
-        return;
-      }
-
       const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
+        headers: {},
       };
-
+      if (userInfo && userInfo.token) {
+        config.headers['Authorization'] = `Bearer ${userInfo.token}`;
+      }
       const { data: exercisesData } = await axios.get(`${API_URL}/materials?type=exercicio`, config);
       setAllExercises(exercisesData);
 
-      const { data: progressData } = await axios.get(`${API_URL}/progress`, config);
-      setUserProgress(progressData);
-
+      if (userInfo && userInfo.token) {
+        const { data: progressData } = await axios.get(`${API_URL}/progress`, config);
+        setUserProgress(progressData);
+      } else {
+        setUserProgress([]);
+      }
     } catch (err) {
       console.error('Erro ao buscar dados:', err);
       setError(err.response?.data?.message || 'Erro ao carregar exercícios ou progresso.');
@@ -67,25 +64,29 @@ const Exercises = () => {
       const score = calculateScore(currentQuiz);
       const totalQuestions = currentQuiz.questions.length;
 
-      try {
-        const config = {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${userInfo.token}`,
-          },
-        };
-        await axios.post(
-          `${API_URL}/progress`,
-          {
-            materialId: quizId,
-            score,
-            totalQuestions,
-          },
-          config
-        );
-        fetchData();
-      } catch (err) {
-        console.error('Erro ao salvar progresso:', err.response?.data?.message || err.message);
+      if (userInfo && userInfo.token) {
+        try {
+          const config = {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${userInfo.token}`,
+            },
+          };
+          await axios.post(
+            `${API_URL}/progress`,
+            {
+              materialId: quizId,
+              score,
+              totalQuestions,
+            },
+            config
+          );
+          fetchData();
+        } catch (err) {
+          console.error('Erro ao salvar progresso:', err.response?.data?.message || err.message);
+        }
+      } else {
+        setError('Progresso não salvo. Faça login para registrar seus resultados!');
       }
     }
   };
@@ -129,6 +130,7 @@ const Exercises = () => {
     const isChecked = answersChecked[currentQuiz._id];
     const score = isChecked ? calculateScore(currentQuiz) : 0;
     const totalQuestions = currentQuiz.questions.length;
+    const allQuestionsAnswered = Object.keys(userAnswers).length === totalQuestions;
 
     return (
       <div>
@@ -176,6 +178,11 @@ const Exercises = () => {
         {isChecked && (
           <div style={resultStyle}>
             <p>Você acertou: {score} de {totalQuestions} perguntas.</p>
+            {!userInfo && (
+              <p style={{ color: 'red', fontSize: '0.9em', marginTop: '10px' }}>
+                **Seu progresso não foi salvo.** Faça login para registrar seus resultados!
+              </p>
+            )}
           </div>
         )}
 
@@ -183,7 +190,7 @@ const Exercises = () => {
           <button
             onClick={() => checkAnswers(currentQuiz._id)}
             style={buttonStyle}
-            disabled={Object.keys(userAnswers).length !== totalQuestions}
+            disabled={!allQuestionsAnswered}
           >
             Verificar Respostas
           </button>
